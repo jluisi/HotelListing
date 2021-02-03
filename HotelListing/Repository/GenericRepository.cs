@@ -49,6 +49,7 @@ namespace HotelListing.Repository
       {
         foreach (var includeProperty in includes)
         {
+          // Add related entities to be included in the query result
           query = query.Include(includeProperty);
         }
       }
@@ -57,7 +58,8 @@ namespace HotelListing.Repository
     }
 
     //---------------------------------------------------------------------------------------------
-    public async Task<IList<T>> GetAll(Expression<Func<T, bool>> expression = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, List<string> includes = null)
+    public async Task<IList<T>> GetAll(Expression<Func<T, bool>> expression = null, 
+      Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, List<string> includes = null)
     {
       IQueryable<T> query = _dbSet;
 

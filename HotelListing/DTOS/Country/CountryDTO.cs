@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using HotelListing.DTOS.Hotel;
+using System.Collections.Generic;
 
 namespace HotelListing.DTOS.Country
 {
@@ -7,6 +7,6 @@ namespace HotelListing.DTOS.Country
   {
     public int Id { get; set; }
 
-    public IList<HotelDto> Hotels { get; set; }
+    public IList<HotelDTO> Hotels { get; set; }
   }
 }

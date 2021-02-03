@@ -1,5 +1,7 @@
 using AutoMapper;
 using HotelListing.Data;
+using HotelListing.IRepository;
+using HotelListing.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 
 namespace HotelListing
 {
@@ -38,7 +41,14 @@ namespace HotelListing
 
       services.AddAutoMapper(typeof(Startup));
 
-      services.AddControllers();
+      // AddSingleton : only one instance will exist for the entire duration of the application
+      // AddTransient : every time that is needed a new instance will be created
+      // AddScoped    : a new instance is created for a period or lifetime of the request
+      services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+      // Add NewtonsoftJson to set option that ignores cycle reference between 2 entities
+      services.AddControllers().AddNewtonsoftJson(
+        op => op.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
       services.AddSwaggerGen(c =>
       {
