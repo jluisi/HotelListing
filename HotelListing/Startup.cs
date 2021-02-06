@@ -2,6 +2,7 @@ using AutoMapper;
 using HotelListing.Data;
 using HotelListing.IRepository;
 using HotelListing.Repository;
+using HotelListing.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,10 @@ namespace HotelListing
       var connectionString = Configuration.GetConnectionString("DefaultConnection");
       services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
+      services.AddAuthentication();
+      services.ConfigureIdentity();
+      services.ConfigureJWT(Configuration);
+
       services.AddCors(o =>
       {
         o.AddPolicy("AllowAll", builder => builder
@@ -45,6 +50,7 @@ namespace HotelListing
       // AddTransient : every time that is needed a new instance will be created
       // AddScoped    : a new instance is created for a period or lifetime of the request
       services.AddTransient<IUnitOfWork, UnitOfWork>();
+      services.AddScoped<IAuthManager, AuthManager>();
 
       // Add NewtonsoftJson to set option that ignores cycle reference between 2 entities
       services.AddControllers().AddNewtonsoftJson(
@@ -76,6 +82,7 @@ namespace HotelListing
 
       app.UseRouting();
 
+      app.UseAuthentication();
       app.UseAuthorization();
 
       app.UseEndpoints(endpoints =>
