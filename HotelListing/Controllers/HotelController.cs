@@ -146,7 +146,7 @@ namespace HotelListing.Controllers
 
     //---------------------------------------------------------------------------------------------
     [Authorize(Roles = "Admin")]
-    [HttpPut("{id:int}", Name = "DeleteHotel")]
+    [HttpDelete("{id:int}", Name = "DeleteHotel")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

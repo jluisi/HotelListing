@@ -148,8 +148,12 @@ namespace HotelListing.Controllers
     }
 
     //---------------------------------------------------------------------------------------------
+    // Notice that the Country table was created with the Referential Integrity of Delete Cascade
+    // Thus, when a Country is Deleted, all its Hotels will be deleted too. To avoid this behavior 
+    // we need to change this constraint to Restrict: No Country can be deleted if it has Hotels
+    //---------------------------------------------------------------------------------------------
     [Authorize(Roles = "Admin")]
-    [HttpPut("{id:int}", Name = "DeleteCountry")]
+    [HttpDelete("{id:int}", Name = "DeleteCountry")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -183,7 +187,6 @@ namespace HotelListing.Controllers
         return StatusCode(500, "Internal Server Error. Please try again.");
       }
     }
-
 
   }
 }
