@@ -52,14 +52,14 @@ namespace HotelListing
       services.AddTransient<IUnitOfWork, UnitOfWork>();
       services.AddScoped<IAuthManager, AuthManager>();
 
-      // Add NewtonsoftJson to set option that ignores cycle reference between 2 entities
-      services.AddControllers().AddNewtonsoftJson(
-        op => op.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
-
       services.AddSwaggerGen(c =>
       {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelListing", Version = "v1" });
       });
+
+      // Add NewtonsoftJson to set option that ignores cycle reference between 2 entities
+      services.AddControllers().AddNewtonsoftJson(
+        op => op.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
     }
 
     //---------------------------------------------------------------------------------------------
@@ -74,7 +74,15 @@ namespace HotelListing
 
       // Moved these 2 lines out of the env.IsDevelopment() block above
       app.UseSwagger();
-      app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelListing v1"));
+      app.UseSwaggerUI(c => {
+        string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
+        c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "Hotel Listing API");
+      });
+
+      // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelListing v1"));
+
+      // Custom Exception Handler defined in ServiceExtension
+      app.ConfigureExceptionHandler();
 
       app.UseHttpsRedirection();
 

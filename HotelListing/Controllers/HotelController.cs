@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using HotelListing.Data;
@@ -35,17 +34,9 @@ namespace HotelListing.Controllers
 
     public async Task<IActionResult> GetHotels()
     {
-      try
-      {
-        var hotels = await _unitOfWork.Hotels.GetAll();
-        var results = _mapper.Map<IList<HotelDTO>>(hotels);
-        return Ok(results);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, $"Something went wrong in the {nameof(GetHotels)}");
-        return StatusCode(500, "Internal Server Error. Please try again.");
-      }
+      var hotels = await _unitOfWork.Hotels.GetAll();
+      var results = _mapper.Map<IList<HotelDTO>>(hotels);
+      return Ok(results);
     }
 
     //---------------------------------------------------------------------------------------------
@@ -55,17 +46,9 @@ namespace HotelListing.Controllers
 
     public async Task<IActionResult> GetHotel(int id)
     {
-      try
-      {
-        var hotel = await _unitOfWork.Hotels.Get(x => x.Id == id, new List<string> { "Country" });
-        var result = _mapper.Map<HotelDTO>(hotel);
-        return Ok(result);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, $"Something went wrong in the {nameof(GetHotel)}");
-        return StatusCode(500, "Internal Server Error. Please try again.");
-      }
+      var hotel = await _unitOfWork.Hotels.Get(x => x.Id == id, new List<string> { "Country" });
+      var result = _mapper.Map<HotelDTO>(hotel);
+      return Ok(result);
     }
 
     //---------------------------------------------------------------------------------------------
@@ -83,21 +66,13 @@ namespace HotelListing.Controllers
         return BadRequest(ModelState);
       }
 
-      try
-      {
-        // After Saving to the DB, the Entity will have the Id value of the new record
-        var hotel = _mapper.Map<Hotel>(hotelDTO);
-        await _unitOfWork.Hotels.Insert(hotel);
-        await _unitOfWork.Save();
+      // After Saving to the DB, the Entity will have the Id value of the new record
+      var hotel = _mapper.Map<Hotel>(hotelDTO);
+      await _unitOfWork.Hotels.Insert(hotel);
+      await _unitOfWork.Save();
 
-        // Returns whatever the GetHotel route returns, in this case the new Hotel
-        return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, $"Something went wrong in the {nameof(CreateHotel)}");
-        return StatusCode(500, "Internal Server Error. Please try again.");
-      }
+      // Returns whatever the GetHotel route returns, in this case the new Hotel
+      return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
     }
 
     //---------------------------------------------------------------------------------------------
@@ -118,30 +93,22 @@ namespace HotelListing.Controllers
         return BadRequest(ModelState);
       }
 
-      try
+      // Get the record to update from the database
+      var hotel = await _unitOfWork.Hotels.Get(x => x.Id == id);
+
+      // If the record does not exist in the database
+      if (hotel == null)
       {
-        // Get the record to update from the database
-        var hotel = await _unitOfWork.Hotels.Get(x => x.Id == id);
-
-        // If the record does not exist in the database
-        if (hotel == null)
-        {
-          _logger.LogError($"Invalid UPDATE Attempt in {nameof(UpdateHotel)}");
-          return BadRequest("Submitted Data is Invalid, Record does NOT Exist");
-        }
-
-        // If the record exists
-        _mapper.Map(hotelDTO, hotel);
-        _unitOfWork.Hotels.Update(hotel);
-        await _unitOfWork.Save();
-
-        return NoContent();
+        _logger.LogError($"Invalid UPDATE Attempt in {nameof(UpdateHotel)}");
+        return BadRequest("Submitted Data is Invalid, Record does NOT Exist");
       }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, $"Something went wrong in the {nameof(UpdateHotel)}");
-        return StatusCode(500, "Internal Server Error. Please try again.");
-      }
+
+      // If the record exists
+      _mapper.Map(hotelDTO, hotel);
+      _unitOfWork.Hotels.Update(hotel);
+      await _unitOfWork.Save();
+
+      return NoContent();
     }
 
     //---------------------------------------------------------------------------------------------
@@ -159,26 +126,18 @@ namespace HotelListing.Controllers
         return BadRequest();
       }
 
-      try
+      var hotel = await _unitOfWork.Hotels.Get(x => x.Id == id);
+
+      if (hotel == null)
       {
-        var hotel = await _unitOfWork.Hotels.Get(x => x.Id == id);
-
-        if (hotel == null)
-        {
-          _logger.LogError($"Invalid DELETE Attempt in {nameof(DeleteHotel)}");
-          return BadRequest("Submitted Data is Invalid, Record does NOT Exist");
-        }
-
-        await _unitOfWork.Hotels.Delete(hotel.Id);
-        await _unitOfWork.Save();
-
-        return NoContent();
+        _logger.LogError($"Invalid DELETE Attempt in {nameof(DeleteHotel)}");
+        return BadRequest("Submitted Data is Invalid, Record does NOT Exist");
       }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, $"Something went wrong in the {nameof(DeleteHotel)}");
-        return StatusCode(500, "Internal Server Error. Please try again.");
-      }
+
+      await _unitOfWork.Hotels.Delete(hotel.Id);
+      await _unitOfWork.Save();
+
+      return NoContent();
     }
 
   }

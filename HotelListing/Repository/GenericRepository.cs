@@ -1,4 +1,5 @@
 ﻿using HotelListing.Data;
+using HotelListing.DTOS.Params;
 using HotelListing.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace HotelListing.Repository
 {
@@ -85,6 +87,23 @@ namespace HotelListing.Repository
       }
 
       return await query.AsNoTracking().ToListAsync();
+    }
+
+    //---------------------------------------------------------------------------------------------
+    public async Task<IPagedList<T>> GetPagedList(PagingDTO pagingDTO, List<string> includes = null)
+    {
+      IQueryable<T> query = _dbSet;
+
+      // Includes objects attached to this entity
+      if (includes != null)
+      {
+        foreach (var includeProperty in includes)
+        {
+          query = query.Include(includeProperty);
+        }
+      }
+
+      return await query.AsNoTracking().ToPagedListAsync(pagingDTO.PageNumber, pagingDTO.PageSize);
     }
 
     //---------------------------------------------------------------------------------------------
